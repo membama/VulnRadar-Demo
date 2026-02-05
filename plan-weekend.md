@@ -275,13 +275,14 @@ def _extract_labels(item: Dict[str, Any]) -> List[str]:
 |------|----------|--------|
 | `.github/workflows/update.yml` | ✏️ NVD cache | |
 | `.github/workflows/notify.yml` | ✏️ workflow_run trigger | |
+| `.github/workflows/ci.yml` | ✏️ Python 3.14 matrix | |
 | `etl.py` | ✏️ NVD cache support | ✏️ "Exploit Intel" label |
 | `notify.py` | | ✏️ Escalation, labels, rebrand |
 | `README.md` | ✏️ Badges | ✏️ Rebrand docs |
 
 ---
 
-## Estimated Effort
+## Estimated Effort (Core Tasks)
 
 | Task | Effort | Priority |
 |------|--------|----------|
@@ -292,7 +293,136 @@ def _extract_labels(item: Dict[str, Any]) -> List[str]:
 | Dynamic labels | 30 min | 🟢 LOW |
 | Testing | 1 hour | 🔴 HIGH |
 
-**Total: ~6-7 hours**
+**Core Total: ~6-7 hours**
+
+---
+
+## Stretch Goals (If Time Permits)
+
+These are all **private-repo safe** and maintain the **"fork & go"** philosophy.
+
+### 🔴 High Priority Stretch
+
+#### Python 3.14+ Compatibility
+**Effort:** 1 hour | **Priority:** 🔴 HIGH
+
+Ensure VulnRadar runs on Python 3.14+ (future-proofing):
+- Update CI matrix to test Python 3.11, 3.12, 3.13, 3.14
+- Fix any deprecation warnings
+- Update `pyproject.toml` with version constraints
+- Test with latest Python beta/RC
+
+```yaml
+# .github/workflows/ci.yml
+strategy:
+  matrix:
+    python-version: ["3.11", "3.12", "3.13", "3.14"]
+```
+
+#### Live Demo Mode
+**Effort:** 1 hour | **Priority:** 🔴 HIGH (for BSidesGalway)
+
+Add `--demo` workflow input to simulate a new CVE appearing:
+- Injects a fake critical CVE into the pipeline
+- Shows full alert flow (issue creation, Discord, etc.)
+- Perfect for conference demos without exposing real data
+
+```yaml
+# workflow_dispatch input
+inputs:
+  demo:
+    description: 'Run in demo mode (inject fake CVE)'
+    type: boolean
+    default: false
+```
+
+### 🟠 Medium Priority Stretch
+
+#### GitHub Projects Integration
+**Effort:** 2 hours | **Priority:** 🟠 MEDIUM
+
+Auto-create and manage a Kanban board:
+- Columns: `🆕 New → 🔍 Triaging → 🛠️ Mitigating → ✅ Resolved`
+- Auto-add new issues to "New" column
+- Move issues based on label changes
+- All stays within the private repo
+
+#### Weekly Summary Issue
+**Effort:** 1 hour | **Priority:** 🟠 MEDIUM
+
+Every Monday, auto-create a digest issue:
+```markdown
+## 📊 Week of Feb 3-9, 2026
+
+| Metric | Count |
+|--------|-------|
+| New CVEs | 5 |
+| Escalations | 2 |
+| Resolved | 12 |
+| Open Critical | 8 |
+```
+
+### 🟢 Nice-to-Have Stretch
+
+#### Devcontainer Setup
+**Effort:** 30 min | **Priority:** 🟢 LOW
+
+One-click GitHub Codespaces for contributors:
+- `.devcontainer/devcontainer.json`
+- Pre-installed Python, dependencies
+- VS Code extensions for Python
+
+#### Multi-Watchlist Support
+**Effort:** 1 hour | **Priority:** 🟢 LOW
+
+Support `watchlist.d/*.yaml` for team collaboration:
+- Different teams own different watchlist files
+- Merged at runtime
+- Easier PR reviews for watchlist changes
+
+#### Auto-Label by Severity
+**Effort:** 30 min | **Priority:** 🟢 LOW
+
+Add severity labels automatically:
+- `severity:critical` (CVSS ≥ 9.0)
+- `severity:high` (CVSS ≥ 7.0)
+- `severity:medium` (CVSS ≥ 4.0)
+
+#### Watchlist Validation in CI
+**Effort:** 30 min | **Priority:** 🟢 LOW
+
+CI check that validates watchlist.yaml:
+- Valid YAML syntax
+- No duplicate entries
+- Vendors/products exist in CVE data (optional warning)
+
+#### Metrics in README
+**Effort:** 1 hour | **Priority:** 🟢 LOW
+
+Auto-update README badges with current stats:
+- "Last scan: 2 hours ago"
+- "Tracking: 45 critical CVEs"
+- Uses GitHub Actions to update README
+
+---
+
+## Stretch Goals Effort Summary
+
+| Task | Effort | Priority |
+|------|--------|----------|
+| Python 3.14+ compat | 1 hour | 🔴 HIGH |
+| Live demo mode | 1 hour | 🔴 HIGH |
+| GitHub Projects | 2 hours | 🟠 MEDIUM |
+| Weekly summary issue | 1 hour | 🟠 MEDIUM |
+| Devcontainer | 30 min | 🟢 LOW |
+| Multi-watchlist | 1 hour | 🟢 LOW |
+| Auto-severity labels | 30 min | 🟢 LOW |
+| Watchlist validation | 30 min | 🟢 LOW |
+| README metrics | 1 hour | 🟢 LOW |
+
+**Stretch Total: ~8-9 hours**
+
+**Grand Total (Core + All Stretch): ~15 hours**
 
 ---
 
@@ -308,3 +438,4 @@ def _extract_labels(item: Dict[str, Any]) -> List[str]:
 
 3. **Escalation cooldown?** Should we avoid commenting multiple times?
    - **Recommendation:** Track `escalated_at` in state to prevent spam
+
