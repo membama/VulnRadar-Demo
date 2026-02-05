@@ -576,17 +576,14 @@ def build_radar_data(
         in_patchthis = cve_id in patchthis_cves
         in_watchlist = watch_hit
         is_critical = bool(in_patchthis and in_watchlist)
-        is_warning = bool(in_patchthis and (not in_watchlist))
 
-        if in_watchlist and in_patchthis:
+        if is_critical:
             priority_label = "CRITICAL (Active Exploit in Stack)"
-        elif (not in_watchlist) and in_patchthis:
-            priority_label = "WARNING (Shadow IT Risk)"
         else:
             priority_label = ""
 
-        # Include if watchlist hit OR KEV OR PatchThis.
-        if (not in_watchlist) and (not active_threat) and (not in_patchthis):
+        # Include if watchlist hit OR KEV.
+        if (not in_watchlist) and (not active_threat):
             continue
 
         record: Dict[str, Any] = {
@@ -595,7 +592,6 @@ def build_radar_data(
             "in_watchlist": in_watchlist,
             "in_patchthis": in_patchthis,
             "is_critical": is_critical,
-            "is_warning": is_warning,
             "priority_label": priority_label,
             "matched_terms": sorted(set(matched_terms)) if watch_hit else [],
             "active_threat": active_threat,
@@ -656,8 +652,6 @@ def write_radar_data(path: Path, items: List[Dict[str, Any]]) -> None:
 def risk_bucket(item: Dict[str, Any]) -> str:
     if bool(item.get("is_critical")):
         return "CRITICAL"
-    if bool(item.get("is_warning")):
-        return "WARNING"
     if bool(item.get("active_threat")):
         return "KEV"
     epss = item.get("probability_score")
@@ -682,7 +676,6 @@ def risk_sort_key(item: Dict[str, Any]) -> float:
     """
 
     critical = 1.0 if bool(item.get("is_critical")) else 0.0
-    warning = 1.0 if (bool(item.get("is_warning")) and not critical) else 0.0
     kev = 1.0 if bool(item.get("active_threat")) else 0.0
     epss = item.get("probability_score")
     cvss = item.get("cvss_score")
@@ -695,7 +688,7 @@ def risk_sort_key(item: Dict[str, Any]) -> float:
     except Exception:
         cvss_v = 0.0
 
-    return critical * 1000.0 + warning * 900.0 + kev * 800.0 + epss_v * 10.0 + cvss_v
+    return critical * 1000.0 + kev * 900.0 + epss_v * 10.0 + cvss_v
 
 
 def write_markdown_report(path: Path, items: List[Dict[str, Any]]) -> None:
@@ -725,7 +718,8 @@ def write_markdown_report(path: Path, items: List[Dict[str, Any]]) -> None:
         return f"[{cve}](https://www.cve.org/CVERecord?id={cve})" if cve.startswith("CVE-") else cve
 
     def _short(s: str, n: int = 160) -> str:
-        s = (s or "").replace("\n", " ").strip()
+        # Replace all whitespace (newlines, tabs, etc.) with single space, escape pipes
+        s = " ".join((s or "").split()).replace("|", "\\|")
         return s if len(s) <= n else s[: n - 1] + "…"
 
     lines: List[str] = []
