@@ -663,6 +663,61 @@ def send_discord_summary(webhook_url: str, items: List[Dict[str, Any]], repo: st
     r.raise_for_status()
 
 
+def send_discord_baseline(webhook_url: str, items: List[Dict[str, Any]], critical_items: List[Dict[str, Any]], repo: str) -> None:
+    """Send a baseline summary to Discord on first run instead of spamming individual alerts."""
+    total = len(items)
+    critical_count = len(critical_items)
+    kev_count = sum(1 for i in items if bool(i.get("active_threat")))
+    patch_count = sum(1 for i in items if bool(i.get("in_patchthis")))
+    
+    # Sort and get top 10
+    sorted_critical = sorted(
+        critical_items,
+        key=lambda x: float(x.get("probability_score") or 0),
+        reverse=True
+    )[:10]
+    
+    top_list = ""
+    for item in sorted_critical:
+        cve = item.get("cve_id", "")
+        epss = item.get("probability_score")
+        kev = "🔴" if item.get("active_threat") else "⚪"
+        try:
+            epss_str = f"{float(epss):.1%}" if epss else "?"
+        except Exception:
+            epss_str = "?"
+        top_list += f"{kev} [{cve}](https://www.cve.org/CVERecord?id={cve}) (EPSS: {epss_str})\n"
+    
+    if not top_list:
+        top_list = "No critical findings."
+    
+    payload = {
+        "embeds": [{
+            "title": "🚀 VulnRadar Baseline Established",
+            "description": (
+                "**First run complete!** Your vulnerability baseline has been established.\n\n"
+                "Going forward, you'll only receive alerts for:\n"
+                "• 🆕 New CVEs matching your watchlist\n"
+                "• ⚠️ CVEs added to CISA KEV\n"
+                "• 🔥 CVEs added to PatchThis\n"
+                "• 📈 Significant EPSS increases"
+            ),
+            "color": 0x00FF00,  # Green
+            "fields": [
+                {"name": "Total CVEs", "value": str(total), "inline": True},
+                {"name": "🚨 Critical", "value": str(critical_count), "inline": True},
+                {"name": "⚠️ CISA KEV", "value": str(kev_count), "inline": True},
+                {"name": "🔥 PatchThis", "value": str(patch_count), "inline": True},
+                {"name": "Top 10 Critical (by EPSS)", "value": top_list, "inline": False},
+            ],
+            "footer": {"text": f"Repo: {repo} | No more alert spam!"}
+        }]
+    }
+    
+    r = requests.post(webhook_url, json=payload, timeout=DEFAULT_TIMEOUT)
+    r.raise_for_status()
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Slack Webhooks
 # ─────────────────────────────────────────────────────────────────────────────
@@ -821,6 +876,81 @@ def send_slack_summary(webhook_url: str, items: List[Dict[str, Any]], repo: str,
         "attachments": [{
             "color": color,
             "blocks": blocks
+        }]
+    }
+    
+    r = requests.post(webhook_url, json=payload, timeout=DEFAULT_TIMEOUT)
+    r.raise_for_status()
+
+
+def send_slack_baseline(webhook_url: str, items: List[Dict[str, Any]], critical_items: List[Dict[str, Any]], repo: str) -> None:
+    """Send a baseline summary to Slack on first run."""
+    total = len(items)
+    critical_count = len(critical_items)
+    kev_count = sum(1 for i in items if bool(i.get("active_threat")))
+    patch_count = sum(1 for i in items if bool(i.get("in_patchthis")))
+    
+    sorted_critical = sorted(
+        critical_items,
+        key=lambda x: float(x.get("probability_score") or 0),
+        reverse=True
+    )[:10]
+    
+    top_list = ""
+    for item in sorted_critical:
+        cve = item.get("cve_id", "")
+        epss = item.get("probability_score")
+        kev = "🔴" if item.get("active_threat") else "⚪"
+        cve_url = f"https://www.cve.org/CVERecord?id={cve}"
+        try:
+            epss_str = f"{float(epss):.1%}" if epss else "?"
+        except Exception:
+            epss_str = "?"
+        top_list += f"{kev} <{cve_url}|{cve}> (EPSS: {epss_str})\n"
+    
+    if not top_list:
+        top_list = "No critical findings."
+    
+    payload = {
+        "attachments": [{
+            "color": "good",
+            "blocks": [
+                {
+                    "type": "header",
+                    "text": {"type": "plain_text", "text": "🚀 VulnRadar Baseline Established", "emoji": True}
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": (
+                            "*First run complete!* Your vulnerability baseline has been established.\n\n"
+                            "Going forward, you'll only receive alerts for:\n"
+                            "• 🆕 New CVEs matching your watchlist\n"
+                            "• ⚠️ CVEs added to CISA KEV\n"
+                            "• 🔥 CVEs added to PatchThis\n"
+                            "• 📈 Significant EPSS increases"
+                        )
+                    }
+                },
+                {
+                    "type": "section",
+                    "fields": [
+                        {"type": "mrkdwn", "text": f"*Total CVEs:* {total}"},
+                        {"type": "mrkdwn", "text": f"*🚨 Critical:* {critical_count}"},
+                        {"type": "mrkdwn", "text": f"*⚠️ CISA KEV:* {kev_count}"},
+                        {"type": "mrkdwn", "text": f"*🔥 PatchThis:* {patch_count}"},
+                    ]
+                },
+                {
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": f"*Top 10 Critical (by EPSS):*\n{top_list}"}
+                },
+                {
+                    "type": "context",
+                    "elements": [{"type": "mrkdwn", "text": f"Repo: {repo} | No more alert spam!"}]
+                }
+            ]
         }]
     }
     
@@ -1046,6 +1176,125 @@ def send_teams_summary(webhook_url: str, items: List[Dict[str, Any]], repo: str,
                 "type": "AdaptiveCard",
                 "version": "1.4",
                 "body": body
+            }
+        }]
+    }
+    
+    r = requests.post(webhook_url, json=payload, timeout=DEFAULT_TIMEOUT)
+    r.raise_for_status()
+
+
+def send_teams_baseline(webhook_url: str, items: List[Dict[str, Any]], critical_items: List[Dict[str, Any]], repo: str) -> None:
+    """Send a baseline summary to Teams on first run."""
+    total = len(items)
+    critical_count = len(critical_items)
+    kev_count = sum(1 for i in items if bool(i.get("active_threat")))
+    patch_count = sum(1 for i in items if bool(i.get("in_patchthis")))
+    
+    sorted_critical = sorted(
+        critical_items,
+        key=lambda x: float(x.get("probability_score") or 0),
+        reverse=True
+    )[:10]
+    
+    top_list = ""
+    for item in sorted_critical:
+        cve = item.get("cve_id", "")
+        epss = item.get("probability_score")
+        kev = "🔴" if item.get("active_threat") else "⚪"
+        try:
+            epss_str = f"{float(epss):.1%}" if epss else "?"
+        except Exception:
+            epss_str = "?"
+        top_list += f"- {kev} [{cve}](https://www.cve.org/CVERecord?id={cve}) (EPSS: {epss_str})\n"
+    
+    if not top_list:
+        top_list = "No critical findings."
+    
+    payload = {
+        "type": "message",
+        "attachments": [{
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.4",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "text": "🚀 VulnRadar Baseline Established",
+                        "weight": "Bolder",
+                        "size": "Large",
+                        "color": "Good"
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": (
+                            "**First run complete!** Your vulnerability baseline has been established.\n\n"
+                            "Going forward, you'll only receive alerts for:\n"
+                            "- 🆕 New CVEs matching your watchlist\n"
+                            "- ⚠️ CVEs added to CISA KEV\n"
+                            "- 🔥 CVEs added to PatchThis\n"
+                            "- 📈 Significant EPSS increases"
+                        ),
+                        "wrap": True
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                    {"type": "TextBlock", "text": "Total CVEs", "weight": "Bolder"},
+                                    {"type": "TextBlock", "text": str(total), "size": "ExtraLarge"}
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                    {"type": "TextBlock", "text": "🚨 Critical", "weight": "Bolder"},
+                                    {"type": "TextBlock", "text": str(critical_count), "size": "ExtraLarge", "color": "Attention"}
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                    {"type": "TextBlock", "text": "⚠️ KEV", "weight": "Bolder"},
+                                    {"type": "TextBlock", "text": str(kev_count), "size": "ExtraLarge", "color": "Warning"}
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                    {"type": "TextBlock", "text": "🔥 PatchThis", "weight": "Bolder"},
+                                    {"type": "TextBlock", "text": str(patch_count), "size": "ExtraLarge"}
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "**Top 10 Critical (by EPSS):**",
+                        "weight": "Bolder",
+                        "spacing": "Medium"
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": top_list,
+                        "wrap": True
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": f"Repo: {repo} | No more alert spam!",
+                        "size": "Small",
+                        "isSubtle": True,
+                        "spacing": "Medium"
+                    }
+                ]
             }
         }]
     }
@@ -1297,31 +1546,35 @@ def main() -> int:
     if args.discord_webhook:
         print("Sending Discord notifications...")
         try:
-            # Only send summary if there are changes (or no state/force)
-            if changes_by_cve or args.force or args.no_state:
+            if is_first_run and len(candidates) > 5:
+                # FIRST RUN: Send baseline summary only, skip individual alerts
+                send_discord_baseline(args.discord_webhook, items, candidates, repo)
+                print("Sent Discord baseline summary (first run).")
+            elif changes_by_cve or args.force or args.no_state:
+                # Normal run with changes
                 send_discord_summary(args.discord_webhook, items, repo, changes_by_cve if state else None)
                 print("Sent Discord summary.")
-            
-            # Send individual alerts unless summary-only
-            if not args.discord_summary_only:
-                discord_sent = 0
-                for it in candidates[:args.discord_max]:
-                    cve_id = str(it.get("cve_id") or "").strip().upper()
-                    changes = changes_by_cve.get(cve_id, (None, []))[1] if changes_by_cve else []
-                    
-                    if args.dry_run:
-                        print(f"DRY RUN: would send Discord alert for {cve_id}")
-                    else:
-                        # Rate limit: Discord allows ~30 requests/minute per webhook
-                        time.sleep(0.5)
-                        send_discord_alert(args.discord_webhook, it, changes)
-                        print(f"Sent Discord alert for {cve_id}")
-                        # Track for state
-                        if cve_id not in alerted_channels:
-                            alerted_channels[cve_id] = []
-                        alerted_channels[cve_id].append("discord")
-                    discord_sent += 1
-                print(f"Sent {discord_sent} Discord alerts.")
+                
+                # Send individual alerts unless summary-only
+                if not args.discord_summary_only:
+                    discord_sent = 0
+                    for it in candidates[:args.discord_max]:
+                        cve_id = str(it.get("cve_id") or "").strip().upper()
+                        changes = changes_by_cve.get(cve_id, (None, []))[1] if changes_by_cve else []
+                        
+                        if args.dry_run:
+                            print(f"DRY RUN: would send Discord alert for {cve_id}")
+                        else:
+                            # Rate limit: Discord allows ~30 requests/minute per webhook
+                            time.sleep(0.5)
+                            send_discord_alert(args.discord_webhook, it, changes)
+                            print(f"Sent Discord alert for {cve_id}")
+                            # Track for state
+                            if cve_id not in alerted_channels:
+                                alerted_channels[cve_id] = []
+                            alerted_channels[cve_id].append("discord")
+                        discord_sent += 1
+                    print(f"Sent {discord_sent} Discord alerts.")
         except Exception as e:
             print(f"Discord notification failed: {e}")
     
@@ -1329,30 +1582,33 @@ def main() -> int:
     if args.slack_webhook:
         print("Sending Slack notifications...")
         try:
-            # Only send summary if there are changes
-            if changes_by_cve or args.force or args.no_state:
+            if is_first_run and len(candidates) > 5:
+                # FIRST RUN: Send baseline summary only
+                send_slack_baseline(args.slack_webhook, items, candidates, repo)
+                print("Sent Slack baseline summary (first run).")
+            elif changes_by_cve or args.force or args.no_state:
                 send_slack_summary(args.slack_webhook, items, repo, changes_by_cve if state else None)
                 print("Sent Slack summary.")
-            
-            # Send individual alerts unless summary-only
-            if not args.slack_summary_only:
-                slack_sent = 0
-                for it in candidates[:args.slack_max]:
-                    cve_id = str(it.get("cve_id") or "").strip().upper()
-                    changes = changes_by_cve.get(cve_id, (None, []))[1] if changes_by_cve else []
-                    
-                    if args.dry_run:
-                        print(f"DRY RUN: would send Slack alert for {cve_id}")
-                    else:
-                        # Rate limit: Slack allows ~1 request/second
-                        time.sleep(1.0)
-                        send_slack_alert(args.slack_webhook, it, changes)
-                        print(f"Sent Slack alert for {cve_id}")
-                        if cve_id not in alerted_channels:
-                            alerted_channels[cve_id] = []
-                        alerted_channels[cve_id].append("slack")
-                    slack_sent += 1
-                print(f"Sent {slack_sent} Slack alerts.")
+                
+                # Send individual alerts unless summary-only
+                if not args.slack_summary_only:
+                    slack_sent = 0
+                    for it in candidates[:args.slack_max]:
+                        cve_id = str(it.get("cve_id") or "").strip().upper()
+                        changes = changes_by_cve.get(cve_id, (None, []))[1] if changes_by_cve else []
+                        
+                        if args.dry_run:
+                            print(f"DRY RUN: would send Slack alert for {cve_id}")
+                        else:
+                            # Rate limit: Slack allows ~1 request/second
+                            time.sleep(1.0)
+                            send_slack_alert(args.slack_webhook, it, changes)
+                            print(f"Sent Slack alert for {cve_id}")
+                            if cve_id not in alerted_channels:
+                                alerted_channels[cve_id] = []
+                            alerted_channels[cve_id].append("slack")
+                        slack_sent += 1
+                    print(f"Sent {slack_sent} Slack alerts.")
         except Exception as e:
             print(f"Slack notification failed: {e}")
     
@@ -1360,30 +1616,33 @@ def main() -> int:
     if args.teams_webhook:
         print("Sending Teams notifications...")
         try:
-            # Only send summary if there are changes
-            if changes_by_cve or args.force or args.no_state:
+            if is_first_run and len(candidates) > 5:
+                # FIRST RUN: Send baseline summary only
+                send_teams_baseline(args.teams_webhook, items, candidates, repo)
+                print("Sent Teams baseline summary (first run).")
+            elif changes_by_cve or args.force or args.no_state:
                 send_teams_summary(args.teams_webhook, items, repo, changes_by_cve if state else None)
                 print("Sent Teams summary.")
-            
-            # Send individual alerts unless summary-only
-            if not args.teams_summary_only:
-                teams_sent = 0
-                for it in candidates[:args.teams_max]:
-                    cve_id = str(it.get("cve_id") or "").strip().upper()
-                    changes = changes_by_cve.get(cve_id, (None, []))[1] if changes_by_cve else []
-                    
-                    if args.dry_run:
-                        print(f"DRY RUN: would send Teams alert for {cve_id}")
-                    else:
-                        # Rate limit: Teams allows ~4 requests/second
-                        time.sleep(0.5)
-                        send_teams_alert(args.teams_webhook, it, changes)
-                        print(f"Sent Teams alert for {cve_id}")
-                        if cve_id not in alerted_channels:
-                            alerted_channels[cve_id] = []
-                        alerted_channels[cve_id].append("teams")
-                    teams_sent += 1
-                print(f"Sent {teams_sent} Teams alerts.")
+                
+                # Send individual alerts unless summary-only
+                if not args.teams_summary_only:
+                    teams_sent = 0
+                    for it in candidates[:args.teams_max]:
+                        cve_id = str(it.get("cve_id") or "").strip().upper()
+                        changes = changes_by_cve.get(cve_id, (None, []))[1] if changes_by_cve else []
+                        
+                        if args.dry_run:
+                            print(f"DRY RUN: would send Teams alert for {cve_id}")
+                        else:
+                            # Rate limit: Teams allows ~4 requests/second
+                            time.sleep(0.5)
+                            send_teams_alert(args.teams_webhook, it, changes)
+                            print(f"Sent Teams alert for {cve_id}")
+                            if cve_id not in alerted_channels:
+                                alerted_channels[cve_id] = []
+                            alerted_channels[cve_id].append("teams")
+                        teams_sent += 1
+                    print(f"Sent {teams_sent} Teams alerts.")
         except Exception as e:
             print(f"Teams notification failed: {e}")
     
