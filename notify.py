@@ -297,36 +297,54 @@ def main() -> int:
     session = _session(token)
     existing = _existing_notified_cves(session, repo)
     created = 0
-    for it in candidates:
-        if created >= args.max_items:
-            break
-        cve_id = str(it.get("cve_id") or "").strip().upper()
-        if not cve_id.startswith("CVE-"):
-            continue
+    
+    # Check if issues are enabled on the repo
+    issues_enabled = True
+    try:
+        r = session.get(f"https://api.github.com/repos/{repo}", timeout=DEFAULT_TIMEOUT)
+        if r.ok:
+            repo_data = r.json()
+            issues_enabled = repo_data.get("has_issues", True)
+    except Exception:
+        pass  # Assume issues are enabled if we can't check
+    
+    if not issues_enabled:
+        print(f"GitHub Issues are disabled on {repo}, skipping issue creation.")
+    else:
+        for it in candidates:
+            if created >= args.max_items:
+                break
+            cve_id = str(it.get("cve_id") or "").strip().upper()
+            if not cve_id.startswith("CVE-"):
+                continue
 
-        if cve_id in existing:
-            continue
+            if cve_id in existing:
+                continue
 
-        priority = "CRITICAL" if bool(it.get("is_critical")) else "ALERT"
-        title = f"[VulnRadar] {priority}: {cve_id}"
-        body = _issue_body(it)
-        labels = ["vulnradar", "alert"]
-        if bool(it.get("is_critical")):
-            labels.append("critical")
-        if bool(it.get("active_threat")):
-            labels.append("kev")
+            priority = "CRITICAL" if bool(it.get("is_critical")) else "ALERT"
+            title = f"[VulnRadar] {priority}: {cve_id}"
+            body = _issue_body(it)
+            labels = ["vulnradar", "alert"]
+            if bool(it.get("is_critical")):
+                labels.append("critical")
+            if bool(it.get("active_threat")):
+                labels.append("kev")
 
-        if args.dry_run:
-            print(f"DRY RUN: would create issue: {title}")
-            created += 1
-            continue
+            if args.dry_run:
+                print(f"DRY RUN: would create issue: {title}")
+                created += 1
+                continue
 
-        _create_issue(session, repo, title=title, body=body, labels=labels)
-        print(f"Created issue for {cve_id}")
-        existing.add(cve_id)
-        created += 1
+            try:
+                _create_issue(session, repo, title=title, body=body, labels=labels)
+                print(f"Created issue for {cve_id}")
+                existing.add(cve_id)
+                created += 1
+            except Exception as e:
+                print(f"Failed to create issue for {cve_id}: {e}")
+                break
 
-    print(f"Done. Created {created} GitHub issues.")
+        print(f"Done. Created {created} GitHub issues.")
     
     # Discord notifications
     if args.discord_webhook:
