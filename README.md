@@ -31,7 +31,12 @@ VulnRadar is a **lightweight, GitHub-native vulnerability intelligence tool** th
 Click the **Fork** button at the top right of this page.
 
 ### 2️⃣ Enable GitHub Actions
-Go to your fork → **Actions** tab → Click **"I understand my workflows, go ahead and enable them"**
+
+> ⚠️ **Important:** GitHub automatically disables workflows on forked repositories for security reasons. You must manually enable them.
+
+Go to your fork → **Actions** tab → Click the green button: **"I understand my workflows, go ahead and enable them"**
+
+![Enable Actions](https://img.shields.io/badge/Actions_Tab-Enable_Workflows-success?style=for-the-badge)
 
 ### 3️⃣ Configure your watchlist
 Edit `watchlist.yaml` with your tech stack:
