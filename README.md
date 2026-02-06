@@ -31,19 +31,19 @@ _Last scanned: 2026-02-06 15:40 UTC_
 <table>
 <tr>
 <td width="25%" align="center">
-<img src="https://img.shields.io/badge/dynamic/json?color=blue&label=Total%20CVEs&query=total&url=https%3A%2F%2Fraw.githubusercontent.com%2FRogoLabs%2FVulnRadar%2Fmain%2Fdata%2Fmetrics.json&style=for-the-badge&logo=target&logoColor=white" alt="Total CVEs"/><br/>
+<img src="https://img.shields.io/badge/📊_CVEs-Tracked-blue?style=for-the-badge" alt="Total CVEs"/><br/>
 <sub>Matching your watchlist</sub>
 </td>
 <td width="25%" align="center">
-<img src="https://img.shields.io/badge/Critical-Active%20Exploits-red?style=for-the-badge&logo=fire&logoColor=white" alt="Critical"/><br/>
+<img src="https://img.shields.io/badge/🚨_Critical-Active_Exploits-red?style=for-the-badge" alt="Critical"/><br/>
 <sub>PoC + In your stack = 🔥</sub>
 </td>
 <td width="25%" align="center">
-<img src="https://img.shields.io/badge/KEV-Known%20Exploited-orange?style=for-the-badge&logo=shield&logoColor=white" alt="KEV"/><br/>
+<img src="https://img.shields.io/badge/⚠️_KEV-Known_Exploited-orange?style=for-the-badge" alt="KEV"/><br/>
 <sub>CISA confirmed active</sub>
 </td>
 <td width="25%" align="center">
-<img src="https://img.shields.io/badge/Exploit%20Intel-PoC%20Available-purple?style=for-the-badge&logo=bug&logoColor=white" alt="Exploit Intel"/><br/>
+<img src="https://img.shields.io/badge/🔥_Exploit_Intel-PoC_Available-purple?style=for-the-badge" alt="Exploit Intel"/><br/>
 <sub>From PatchThis feeds</sub>
 </td>
 </tr>
@@ -59,7 +59,7 @@ _Last scanned: 2026-02-06 15:40 UTC_
 | **In KEV** | Listed in CISA's Known Exploited Vulnerabilities catalog | Active exploitation in the wild |
 | **Exploit Intel** | Has PoC/weaponized code (from PatchThis) | Threat actors have working exploits |
 
-> 💡 **Tip:** These metrics auto-update every 6 hours when the ETL workflow runs.
+> 💡 **Tip:** These metrics auto-update every 6 hours when the ETL workflow runs in your fork.
 
 </details>
 
