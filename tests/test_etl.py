@@ -18,6 +18,7 @@ from etl import (
     _norm,
     _pick_best_description,
     load_watchlist,
+    load_merged_watchlist,
 )
 
 
@@ -94,6 +95,66 @@ class TestLoadWatchlist:
         assert "kernel" in watchlist.products
         assert "openssl" in watchlist.products
         assert len(watchlist.products) == 2
+
+
+class TestMultiWatchlist:
+    """Tests for load_merged_watchlist() function."""
+
+    def test_merged_watchlist_single_file(self, tmp_path: Path):
+        """Merged watchlist with just main file works."""
+        main = tmp_path / "watchlist.yaml"
+        main.write_text(yaml.dump({"vendors": ["microsoft"], "products": ["exchange"]}))
+        
+        watchlist = load_merged_watchlist(main)
+        assert "microsoft" in watchlist.vendors
+        assert "exchange" in watchlist.products
+
+    def test_merged_watchlist_with_directory(self, tmp_path: Path):
+        """Merged watchlist includes files from watchlist.d/."""
+        main = tmp_path / "watchlist.yaml"
+        main.write_text(yaml.dump({"vendors": ["microsoft"], "products": ["exchange"]}))
+        
+        # Create watchlist.d/ with additional files
+        watchlist_d = tmp_path / "watchlist.d"
+        watchlist_d.mkdir()
+        
+        (watchlist_d / "security.yaml").write_text(yaml.dump({
+            "vendors": ["paloaltonetworks", "fortinet"],
+            "products": ["firewall"]
+        }))
+        (watchlist_d / "cloud.yaml").write_text(yaml.dump({
+            "vendors": ["amazon"],
+            "products": ["aws", "s3"]
+        }))
+        
+        watchlist = load_merged_watchlist(main, watchlist_d)
+        
+        # Original
+        assert "microsoft" in watchlist.vendors
+        # From security.yaml
+        assert "paloaltonetworks" in watchlist.vendors
+        assert "fortinet" in watchlist.vendors
+        # From cloud.yaml
+        assert "amazon" in watchlist.vendors
+        assert "s3" in watchlist.products
+
+    def test_merged_watchlist_deduplicates(self, tmp_path: Path):
+        """Merged watchlist deduplicates entries."""
+        main = tmp_path / "watchlist.yaml"
+        main.write_text(yaml.dump({"vendors": ["microsoft", "apache"], "products": []}))
+        
+        watchlist_d = tmp_path / "watchlist.d"
+        watchlist_d.mkdir()
+        (watchlist_d / "overlap.yaml").write_text(yaml.dump({
+            "vendors": ["microsoft", "google"],  # microsoft is duplicate
+            "products": []
+        }))
+        
+        watchlist = load_merged_watchlist(main, watchlist_d)
+        assert len([v for v in watchlist.vendors if v == "microsoft"]) == 1
+        assert "microsoft" in watchlist.vendors
+        assert "apache" in watchlist.vendors
+        assert "google" in watchlist.vendors
 
 
 class TestMatchesWatchlist:

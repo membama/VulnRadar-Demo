@@ -105,6 +105,48 @@ def load_watchlist(path: Path) -> Watchlist:
     return Watchlist(vendors=vendors, products=products)
 
 
+def load_merged_watchlist(main_path: Path, watchlist_dir: Optional[Path] = None) -> Watchlist:
+    """Load and merge watchlists from main file and optional directory.
+
+    This supports team collaboration where different teams own different
+    watchlist files that are merged at runtime.
+
+    Args:
+        main_path: Path to main watchlist file (e.g., watchlist.yaml)
+        watchlist_dir: Optional path to directory with additional .yaml files
+                       (defaults to watchlist.d/ if it exists)
+
+    Returns:
+        Merged Watchlist with all vendors and products combined.
+    """
+    # Load main watchlist
+    main_watchlist = load_watchlist(main_path)
+    vendors = set(main_watchlist.vendors)
+    products = set(main_watchlist.products)
+
+    # Auto-detect watchlist.d/ if not specified
+    if watchlist_dir is None:
+        default_dir = Path("watchlist.d")
+        if default_dir.exists() and default_dir.is_dir():
+            watchlist_dir = default_dir
+
+    # Merge files from watchlist.d/
+    if watchlist_dir and watchlist_dir.exists():
+        yaml_files = sorted(watchlist_dir.glob("*.yaml")) + sorted(watchlist_dir.glob("*.yml"))
+        if yaml_files:
+            print(f"Merging {len(yaml_files)} additional watchlist(s) from {watchlist_dir}/")
+            for yaml_file in yaml_files:
+                try:
+                    extra = load_watchlist(yaml_file)
+                    vendors.update(extra.vendors)
+                    products.update(extra.products)
+                    print(f"  + {yaml_file.name}: {len(extra.vendors)} vendors, {len(extra.products)} products")
+                except Exception as e:
+                    print(f"  ⚠️ Failed to load {yaml_file.name}: {e}")
+
+    return Watchlist(vendors=vendors, products=products)
+
+
 def _requests_session() -> requests.Session:
     s = requests.Session()
     s.headers.update(
@@ -1128,7 +1170,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # Auto-detect watchlist file if not specified
     watchlist_path = args.watchlist if args.watchlist else _find_watchlist()
     print(f"Using watchlist: {watchlist_path}")
-    watchlist = load_watchlist(Path(watchlist_path))
+    watchlist = load_merged_watchlist(Path(watchlist_path))
     session = _requests_session()
 
     print("Downloading CISA KEV catalog...")
