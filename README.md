@@ -6,7 +6,8 @@
   <p align="center">
     <a href="https://github.com/RogoLabs/VulnRadar/blob/main/LICENSE"><img src="https://img.shields.io/github/license/RogoLabs/VulnRadar?style=flat-square" alt="License"></a>
     <img src="https://img.shields.io/badge/python-3.11+-blue?style=flat-square&logo=python&logoColor=white" alt="Python">
-    <a href="https://github.com/RogoLabs/VulnRadar/actions"><img src="https://img.shields.io/github/actions/workflow/status/RogoLabs/VulnRadar/update.yml?style=flat-square&label=ETL" alt="ETL Status"></a>
+    <a href="https://github.com/RogoLabs/VulnRadar/actions/workflows/update.yml"><img src="https://img.shields.io/github/actions/workflow/status/RogoLabs/VulnRadar/update.yml?style=flat-square&label=ETL" alt="ETL Status"></a>
+    <a href="https://github.com/RogoLabs/VulnRadar/actions/workflows/notify.yml"><img src="https://img.shields.io/github/actions/workflow/status/RogoLabs/VulnRadar/notify.yml?style=flat-square&label=Notify" alt="Notify Status"></a>
   </p>
 </p>
 

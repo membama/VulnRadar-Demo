@@ -469,6 +469,31 @@ def _extract_dynamic_labels(item: Dict[str, Any], max_labels: int = 3) -> List[s
     return labels
 
 
+def _extract_severity_label(item: Dict[str, Any]) -> Optional[str]:
+    """Extract severity label based on CVSS score.
+
+    Returns:
+        Label string like "severity:critical" or None if no score available
+    """
+    cvss = item.get("cvss_score")
+    if cvss is None:
+        return None
+
+    try:
+        score = float(cvss)
+    except (ValueError, TypeError):
+        return None
+
+    if score >= 9.0:
+        return "severity:critical"
+    elif score >= 7.0:
+        return "severity:high"
+    elif score >= 4.0:
+        return "severity:medium"
+    else:
+        return "severity:low"
+
+
 def _create_baseline_issue(
     session: requests.Session, repo: str, all_items: List[Dict[str, Any]], critical_items: List[Dict[str, Any]]
 ) -> None:
@@ -1754,6 +1779,11 @@ def main() -> int:
             # Add dynamic vendor/product labels from watchlist matches
             dynamic_labels = _extract_dynamic_labels(it)
             labels.extend(dynamic_labels)
+
+            # Add severity label based on CVSS score
+            severity_label = _extract_severity_label(it)
+            if severity_label:
+                labels.append(severity_label)
 
             if args.dry_run:
                 print(f"DRY RUN: would create issue: {title} (labels: {labels})")

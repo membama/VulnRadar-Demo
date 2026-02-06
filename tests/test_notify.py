@@ -11,7 +11,7 @@ import pytest
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from notify import _issue_body, _load_items, _escalation_comment, _extract_dynamic_labels, _generate_demo_cve, Change
+from notify import _issue_body, _load_items, _escalation_comment, _extract_dynamic_labels, _extract_severity_label, _generate_demo_cve, Change
 
 
 class TestLoadItems:
@@ -610,3 +610,52 @@ class TestDemoMode:
 
         assert "vendor:apache" in demo["matched_terms"]
         assert "product:http_server" in demo["matched_terms"]
+
+
+class TestSeverityLabels:
+    """Tests for _extract_severity_label() function."""
+
+    def test_critical_severity(self):
+        """CVSS >= 9.0 returns severity:critical."""
+        item = {"cvss_score": 9.8}
+        assert _extract_severity_label(item) == "severity:critical"
+
+        item = {"cvss_score": 9.0}
+        assert _extract_severity_label(item) == "severity:critical"
+
+    def test_high_severity(self):
+        """CVSS 7.0-8.9 returns severity:high."""
+        item = {"cvss_score": 8.5}
+        assert _extract_severity_label(item) == "severity:high"
+
+        item = {"cvss_score": 7.0}
+        assert _extract_severity_label(item) == "severity:high"
+
+    def test_medium_severity(self):
+        """CVSS 4.0-6.9 returns severity:medium."""
+        item = {"cvss_score": 5.5}
+        assert _extract_severity_label(item) == "severity:medium"
+
+        item = {"cvss_score": 4.0}
+        assert _extract_severity_label(item) == "severity:medium"
+
+    def test_low_severity(self):
+        """CVSS < 4.0 returns severity:low."""
+        item = {"cvss_score": 3.5}
+        assert _extract_severity_label(item) == "severity:low"
+
+        item = {"cvss_score": 0.0}
+        assert _extract_severity_label(item) == "severity:low"
+
+    def test_no_cvss_score(self):
+        """Returns None when no CVSS score."""
+        item = {}
+        assert _extract_severity_label(item) is None
+
+        item = {"cvss_score": None}
+        assert _extract_severity_label(item) is None
+
+    def test_invalid_cvss_score(self):
+        """Returns None for invalid CVSS values."""
+        item = {"cvss_score": "invalid"}
+        assert _extract_severity_label(item) is None
