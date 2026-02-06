@@ -288,7 +288,7 @@ def _extract_cvss(containers_cna: Dict[str, Any]) -> Tuple[Optional[float], Opti
     if not isinstance(metrics, list):
         return None, None, None
 
-    def _from_metric(metric: Dict[str, Any]) -> Optional[Tuple[float, str, str]]:
+    def _from_metric(metric: Dict[str, Any]) -> Optional[Tuple[float, Optional[str], Optional[str]]]:
         for key in ("cvssV3_1", "cvssV3_0", "cvssV4_0", "cvssV2_0"):
             cvss = metric.get(key)
             if isinstance(cvss, dict):
@@ -610,10 +610,10 @@ def build_radar_data(
     if include_kev_outside_window:
         # Optionally add KEV CVEs outside the selected year range without scanning everything.
         for cve_id in kev_by_cve.keys():
-            parsed = _cve_year_and_num(cve_id)
-            if not parsed:
+            year_num = _cve_year_and_num(cve_id)
+            if not year_num:
                 continue
-            year, _ = parsed
+            year, _ = year_num
             if year in years:
                 continue
             p = _guess_cve_path(cves_root, cve_id)
@@ -901,7 +901,7 @@ def write_markdown_report(path: Path, items: List[Dict[str, Any]], state_file: O
                         else:
                             change_type = "🆕 New"
                         date_str = first_seen.strftime("%b %d")
-                        recent_changes.append((first_seen, date_str, cve_id, change_type))
+                        recent_changes.append((date_str, cve_id, change_type))
                 except (ValueError, TypeError):
                     continue
 
@@ -915,7 +915,7 @@ def write_markdown_report(path: Path, items: List[Dict[str, Any]], state_file: O
                 lines.append("| Date | CVE | Status |")
                 lines.append("|------|-----|--------|")
 
-                for _, date_str, cve_id, change_type in recent_changes[:50]:
+                for date_str, cve_id, change_type in recent_changes[:50]:
                     lines.append(f"| {date_str} | {_cve_link(cve_id)} | {change_type} |")
 
                 if len(recent_changes) > 50:

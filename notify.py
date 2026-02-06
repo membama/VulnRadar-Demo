@@ -316,9 +316,10 @@ def _iter_recent_issues(session: requests.Session, repo: str, *, max_pages: int 
 
     base = f"https://api.github.com/repos/{repo}/issues"
     for page in range(1, max_pages + 1):
+        params: Dict[str, Any] = {"state": "all", "per_page": 100, "page": page}
         r = session.get(
             base,
-            params={"state": "all", "per_page": 100, "page": page},
+            params=params,
             timeout=DEFAULT_TIMEOUT,
         )
         r.raise_for_status()
@@ -682,11 +683,11 @@ def _create_baseline_issue(
         desc = str(item.get("description") or "")[:60].replace("|", "\\|").replace("\n", " ")
 
         try:
-            epss_str = f"{float(epss):.1%}"
+            epss_str = f"{float(epss or 0):.1%}" if epss is not None else "N/A"
         except (ValueError, TypeError):
             epss_str = "N/A"
         try:
-            cvss_str = f"{float(cvss):.1f}"
+            cvss_str = f"{float(cvss or 0):.1f}" if cvss is not None else "N/A"
         except (ValueError, TypeError):
             cvss_str = "N/A"
 
@@ -796,11 +797,11 @@ def _create_weekly_summary_issue(
         desc = str(item.get("description") or "")[:50].replace("|", "\\|").replace("\n", " ")
 
         try:
-            epss_str = f"{float(epss):.1%}"
+            epss_str = f"{float(epss or 0):.1%}" if epss is not None else "N/A"
         except (ValueError, TypeError):
             epss_str = "N/A"
         try:
-            cvss_str = f"{float(cvss):.1f}"
+            cvss_str = f"{float(cvss or 0):.1f}" if cvss is not None else "N/A"
         except (ValueError, TypeError):
             cvss_str = "N/A"
 
@@ -1841,13 +1842,13 @@ def main() -> int:
         if not state_path.exists():
             print(f"ℹ️  State file doesn't exist: {state_path}")
             return 0
-        state = StateManager(state_path)
-        stats_before = state.get_stats()
-        pruned = state.prune_old_entries(days=args.prune_state)
-        state.save()
+        prune_state = StateManager(state_path)
+        stats_before = prune_state.get_stats()
+        pruned = prune_state.prune_old_entries(days=args.prune_state)
+        prune_state.save()
         print(f"✅ Pruned {pruned} CVEs not seen in {args.prune_state} days")
         print(f"   Before: {stats_before['total_tracked']} tracked")
-        print(f"   After:  {state.get_stats()['total_tracked']} tracked")
+        print(f"   After:  {prune_state.get_stats()['total_tracked']} tracked")
         return 0
 
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
