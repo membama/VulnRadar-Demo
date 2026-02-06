@@ -8,7 +8,7 @@
 # Usage:
 #   ./scripts/reset_demo.sh [path_to_vulnradar_demo]
 #
-# Default: ../vulnradar-demo
+# Default: ~/Documents/Github/VulnRadar-Demo/
 #
 # What it does:
 # 1. Syncs code from VulnRadar (excluding data and state)
@@ -27,7 +27,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Default demo repo path
-DEMO_REPO="${1:-../vulnradar-demo}"
+DEMO_REPO="${1:-$HOME/Documents/Github/VulnRadar-Demo}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAIN_REPO="$(dirname "$SCRIPT_DIR")"
 
