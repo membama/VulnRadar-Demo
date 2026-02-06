@@ -728,7 +728,7 @@ def send_discord_alert(webhook_url: str, item: Dict[str, Any], changes: Optional
         {"name": "EPSS", "value": epss_str, "inline": True},
         {"name": "CVSS", "value": cvss_str, "inline": True},
         {"name": "KEV", "value": "✅ Yes" if kev else "❌ No", "inline": True},
-        {"name": "PatchThis", "value": "✅ Yes" if patch else "❌ No", "inline": True},
+        {"name": "Exploit Intel", "value": "✅ Yes" if patch else "❌ No", "inline": True},
     ]
 
     if kev_due:
@@ -796,7 +796,7 @@ def send_discord_summary(
         if kev_added > 0:
             parts.append(f"⚠️ {kev_added} added to KEV")
         if patch_added > 0:
-            parts.append(f"🔥 {patch_added} added to PatchThis")
+            parts.append(f"🔥 {patch_added} new exploit intel")
         if epss_spike > 0:
             parts.append(f"📈 {epss_spike} EPSS spike")
         changes_summary = " | ".join(parts) if parts else "No significant changes"
@@ -805,7 +805,7 @@ def send_discord_summary(
         {"name": "Total CVEs", "value": str(total), "inline": True},
         {"name": "🚨 Critical", "value": str(critical_count), "inline": True},
         {"name": "⚠️ CISA KEV", "value": str(kev_count), "inline": True},
-        {"name": "🔥 PatchThis", "value": str(patch_count), "inline": True},
+        {"name": "🔥 Exploit Intel", "value": str(patch_count), "inline": True},
     ]
 
     if changes_summary:
@@ -866,7 +866,7 @@ def send_discord_baseline(
                     {"name": "Total CVEs", "value": str(total), "inline": True},
                     {"name": "🚨 Critical", "value": str(critical_count), "inline": True},
                     {"name": "⚠️ CISA KEV", "value": str(kev_count), "inline": True},
-                    {"name": "🔥 PatchThis", "value": str(patch_count), "inline": True},
+                    {"name": "🔥 Exploit Intel", "value": str(patch_count), "inline": True},
                     {"name": "Top 10 Critical (by EPSS)", "value": top_list, "inline": False},
                 ],
                 "footer": {"text": f"Repo: {repo} | No more alert spam!"},
@@ -1008,7 +1008,7 @@ def send_slack_summary(
                 {"type": "mrkdwn", "text": f"*Total CVEs:* {total}"},
                 {"type": "mrkdwn", "text": f"*🚨 Critical:* {critical_count}"},
                 {"type": "mrkdwn", "text": f"*⚠️ CISA KEV:* {kev_count}"},
-                {"type": "mrkdwn", "text": f"*🔥 PatchThis:* {patch_count}"},
+                {"type": "mrkdwn", "text": f"*🔥 Exploit Intel:* {patch_count}"},
             ],
         },
     ]
@@ -1086,7 +1086,7 @@ def send_slack_baseline(
                             {"type": "mrkdwn", "text": f"*Total CVEs:* {total}"},
                             {"type": "mrkdwn", "text": f"*🚨 Critical:* {critical_count}"},
                             {"type": "mrkdwn", "text": f"*⚠️ CISA KEV:* {kev_count}"},
-                            {"type": "mrkdwn", "text": f"*🔥 PatchThis:* {patch_count}"},
+                            {"type": "mrkdwn", "text": f"*🔥 Exploit Intel:* {patch_count}"},
                         ],
                     },
                     {
@@ -1270,7 +1270,7 @@ def send_teams_summary(
                     "type": "Column",
                     "width": "stretch",
                     "items": [
-                        {"type": "TextBlock", "text": "🔥 PatchThis", "weight": "Bolder"},
+                        {"type": "TextBlock", "text": "🔥 Exploit Intel", "weight": "Bolder"},
                         {"type": "TextBlock", "text": str(patch_count), "size": "ExtraLarge"},
                     ],
                 },
@@ -1410,7 +1410,7 @@ def send_teams_baseline(
                                     "type": "Column",
                                     "width": "stretch",
                                     "items": [
-                                        {"type": "TextBlock", "text": "🔥 PatchThis", "weight": "Bolder"},
+                                        {"type": "TextBlock", "text": "🔥 Exploit Intel", "weight": "Bolder"},
                                         {"type": "TextBlock", "text": str(patch_count), "size": "ExtraLarge"},
                                     ],
                                 },
@@ -1472,6 +1472,11 @@ def main() -> int:
         dest="discord_webhook",
         default=os.environ.get("DISCORD_WEBHOOK_URL"),
         help="Discord webhook URL (or set DISCORD_WEBHOOK_URL env var)",
+    )
+    p.add_argument(
+        "--summary-every-run",
+        action="store_true",
+        help="Send a summary card every run (default: only on first run, then individual CVE alerts)",
     )
     p.add_argument(
         "--discord-summary-only",
@@ -1778,9 +1783,10 @@ def main() -> int:
                 send_discord_baseline(args.discord_webhook, items, candidates, repo)
                 print("Sent Discord baseline summary (first run).")
             elif changes_by_cve or args.force or args.no_state:
-                # Normal run with changes
-                send_discord_summary(args.discord_webhook, items, repo, changes_by_cve if state else None)
-                print("Sent Discord summary.")
+                # Normal run with changes - send summary only if requested
+                if args.summary_every_run:
+                    send_discord_summary(args.discord_webhook, items, repo, changes_by_cve if state else None)
+                    print("Sent Discord summary.")
 
                 # Send individual alerts unless summary-only
                 if not args.discord_summary_only:
@@ -1814,8 +1820,10 @@ def main() -> int:
                 send_slack_baseline(args.slack_webhook, items, candidates, repo)
                 print("Sent Slack baseline summary (first run).")
             elif changes_by_cve or args.force or args.no_state:
-                send_slack_summary(args.slack_webhook, items, repo, changes_by_cve if state else None)
-                print("Sent Slack summary.")
+                # Normal run - send summary only if requested
+                if args.summary_every_run:
+                    send_slack_summary(args.slack_webhook, items, repo, changes_by_cve if state else None)
+                    print("Sent Slack summary.")
 
                 # Send individual alerts unless summary-only
                 if not args.slack_summary_only:
@@ -1848,8 +1856,10 @@ def main() -> int:
                 send_teams_baseline(args.teams_webhook, items, candidates, repo)
                 print("Sent Teams baseline summary (first run).")
             elif changes_by_cve or args.force or args.no_state:
-                send_teams_summary(args.teams_webhook, items, repo, changes_by_cve if state else None)
-                print("Sent Teams summary.")
+                # Normal run - send summary only if requested
+                if args.summary_every_run:
+                    send_teams_summary(args.teams_webhook, items, repo, changes_by_cve if state else None)
+                    print("Sent Teams summary.")
 
                 # Send individual alerts unless summary-only
                 if not args.teams_summary_only:
