@@ -7,6 +7,8 @@ on:
       - "**.py"
       - "pyproject.toml"
       - "requirements*.txt"
+      - "watchlist.yaml"
+      - "watchlist.example.yaml"
       - ".github/workflows/ci.yml"
   pull_request:
     branches: [main]
@@ -14,6 +16,8 @@ on:
       - "**.py"
       - "pyproject.toml"
       - "requirements*.txt"
+      - "watchlist.yaml"
+      - "watchlist.example.yaml"
       - ".github/workflows/ci.yml"
 
 permissions:
@@ -33,6 +37,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate watchlist.yaml
+        run: |
+          pip install pyyaml -q
+          python scripts/validate_watchlist.py
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
