@@ -247,18 +247,55 @@ fi
 
 echo ""
 
-# Step 6: Summary
-echo -e "${BLUE}════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Demo repo ready!${NC}"
+# Step 6: Push changes
+echo -e "${YELLOW}🚀 Step 6: Pushing changes...${NC}"
+
+git push
+echo -e "  ${GREEN}→ Changes pushed to remote${NC}"
+
 echo ""
-echo "Next steps:"
-echo "  1. Push changes:     cd $DEMO_REPO && git push"
-echo "  2. Run ETL:          Trigger the ETL workflow in GitHub Actions"
-echo "  3. Verify first run: Notify workflow should create baseline issue"
+
+# Step 7: Trigger ETL workflow
+echo -e "${YELLOW}⚡ Step 7: Triggering ETL workflow...${NC}"
+
+# Check if gh CLI is available
+if ! command -v gh &> /dev/null; then
+    echo -e "  ${YELLOW}⚠️ GitHub CLI (gh) not installed. Skipping workflow trigger.${NC}"
+    echo "  Install with: brew install gh"
+    echo "  Then run manually: gh workflow run update.yml"
+else
+    # Get repo name from git remote
+    REPO_URL=$(git remote get-url origin)
+    # Extract owner/repo from URL (handles both HTTPS and SSH)
+    REPO_NAME=$(echo "$REPO_URL" | sed -E 's/.*[:/]([^/]+\/[^/]+)(\.git)?$/\1/' | sed 's/\.git$//')
+    
+    echo "  → Triggering update.yml workflow on $REPO_NAME..."
+    if gh workflow run update.yml --repo "$REPO_NAME"; then
+        echo -e "  ${GREEN}→ ETL workflow triggered!${NC}"
+        echo ""
+        echo "  View progress at:"
+        echo "  https://github.com/$REPO_NAME/actions/workflows/update.yml"
+    else
+        echo -e "  ${YELLOW}⚠️ Failed to trigger workflow. You may need to:${NC}"
+        echo "  1. Run: gh auth login"
+        echo "  2. Then: gh workflow run update.yml --repo $REPO_NAME"
+    fi
+fi
+
+echo ""
+
+# Step 8: Summary
+echo -e "${BLUE}════════════════════════════════════════════════${NC}"
+echo -e "${GREEN}✅ Demo repo ready and workflow triggered!${NC}"
+echo ""
+echo "What happens next:"
+echo "  1. ETL workflow runs (~2-3 minutes)"
+echo "  2. Notify workflow triggers automatically after ETL"
+echo "  3. First run creates baseline summary issue"
 echo ""
 echo "For conference demo:"
-echo "  - ETL will populate radar_data.json with CVEs matching your watchlist"
-echo "  - First notify run creates baseline summary issue"
+echo "  - Your watchlist will find matching CVEs"
+echo "  - Check GitHub Issues for the baseline summary"
 echo "  - Use --demo flag to inject a fake critical CVE for live demo"
 echo ""
 echo -e "${BLUE}════════════════════════════════════════════════${NC}"
