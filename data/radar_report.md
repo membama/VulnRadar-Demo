@@ -1,6 +1,6 @@
 # VulnRadar Report
 
-Generated: `2026-02-20T13:52:48+00:00`
+Generated: `2026-02-20T14:24:15+00:00`
 
 ## Executive Summary
 
@@ -248,3 +248,59 @@ Top critical items:
 | [CVE-2025-59230](https://www.cve.org/CVERecord?id=CVE-2025-59230) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2025-11-04 | 0.074 | 7.8 | ✅ | Improper access control in Windows Remote Access Connection Manager allows an authorized attacker to elevate privileges locally. |
 | [CVE-2025-24472](https://www.cve.org/CVERecord?id=CVE-2025-24472) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2025-04-08 | 0.044 | 8.1 | ✅ | An Authentication Bypass Using an Alternate Path or Channel vulnerability [CWE-288] affecting FortiOS 7.0.0 through 7.0.16 and FortiProxy 7.2.0 through 7.2.12,… |
 | [CVE-2025-24990](https://www.cve.org/CVERecord?id=CVE-2025-24990) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2025-11-04 | 0.064 | 7.8 | ✅ | Microsoft is aware of vulnerabilities in the third party Agere Modem driver that ships natively with supported Windows operating systems.  This is an announcem… |
+
+## Recent Changes (Last 7 Days)
+
+| Date | CVE | Status |
+|------|-----|--------|
+| Feb 20 | [CVE-2022-0028](https://www.cve.org/CVERecord?id=CVE-2022-0028) | 🔴 In CISA KEV |
+| Feb 20 | [CVE-2022-0070](https://www.cve.org/CVERecord?id=CVE-2022-0070) | 🆕 New |
+| Feb 20 | [CVE-2022-0096](https://www.cve.org/CVERecord?id=CVE-2022-0096) | 🆕 New |
+| Feb 20 | [CVE-2022-0097](https://www.cve.org/CVERecord?id=CVE-2022-0097) | 🆕 New |
+| Feb 20 | [CVE-2022-0098](https://www.cve.org/CVERecord?id=CVE-2022-0098) | 🆕 New |
+| Feb 20 | [CVE-2022-0099](https://www.cve.org/CVERecord?id=CVE-2022-0099) | 🆕 New |
+| Feb 20 | [CVE-2022-0100](https://www.cve.org/CVERecord?id=CVE-2022-0100) | 🆕 New |
+| Feb 20 | [CVE-2022-0101](https://www.cve.org/CVERecord?id=CVE-2022-0101) | 🆕 New |
+| Feb 20 | [CVE-2022-0102](https://www.cve.org/CVERecord?id=CVE-2022-0102) | 🆕 New |
+| Feb 20 | [CVE-2022-0103](https://www.cve.org/CVERecord?id=CVE-2022-0103) | 🆕 New |
+| Feb 20 | [CVE-2022-0104](https://www.cve.org/CVERecord?id=CVE-2022-0104) | 🆕 New |
+| Feb 20 | [CVE-2022-0105](https://www.cve.org/CVERecord?id=CVE-2022-0105) | 🆕 New |
+| Feb 20 | [CVE-2022-0106](https://www.cve.org/CVERecord?id=CVE-2022-0106) | 🆕 New |
+| Feb 20 | [CVE-2022-0107](https://www.cve.org/CVERecord?id=CVE-2022-0107) | 🆕 New |
+| Feb 20 | [CVE-2022-0108](https://www.cve.org/CVERecord?id=CVE-2022-0108) | 🆕 New |
+| Feb 20 | [CVE-2022-0109](https://www.cve.org/CVERecord?id=CVE-2022-0109) | 🆕 New |
+| Feb 20 | [CVE-2022-0110](https://www.cve.org/CVERecord?id=CVE-2022-0110) | 🆕 New |
+| Feb 20 | [CVE-2022-0111](https://www.cve.org/CVERecord?id=CVE-2022-0111) | 🆕 New |
+| Feb 20 | [CVE-2022-0112](https://www.cve.org/CVERecord?id=CVE-2022-0112) | 🆕 New |
+| Feb 20 | [CVE-2022-0113](https://www.cve.org/CVERecord?id=CVE-2022-0113) | 🆕 New |
+| Feb 20 | [CVE-2022-0114](https://www.cve.org/CVERecord?id=CVE-2022-0114) | 🆕 New |
+| Feb 20 | [CVE-2022-0115](https://www.cve.org/CVERecord?id=CVE-2022-0115) | 🆕 New |
+| Feb 20 | [CVE-2022-0116](https://www.cve.org/CVERecord?id=CVE-2022-0116) | 🆕 New |
+| Feb 20 | [CVE-2022-0117](https://www.cve.org/CVERecord?id=CVE-2022-0117) | 🆕 New |
+| Feb 20 | [CVE-2022-0118](https://www.cve.org/CVERecord?id=CVE-2022-0118) | 🆕 New |
+| Feb 20 | [CVE-2022-0120](https://www.cve.org/CVERecord?id=CVE-2022-0120) | 🆕 New |
+| Feb 20 | [CVE-2022-0185](https://www.cve.org/CVERecord?id=CVE-2022-0185) | 🔴 In CISA KEV |
+| Feb 20 | [CVE-2022-0247](https://www.cve.org/CVERecord?id=CVE-2022-0247) | 🆕 New |
+| Feb 20 | [CVE-2022-0289](https://www.cve.org/CVERecord?id=CVE-2022-0289) | 🆕 New |
+| Feb 20 | [CVE-2022-0290](https://www.cve.org/CVERecord?id=CVE-2022-0290) | 🆕 New |
+| Feb 20 | [CVE-2022-0291](https://www.cve.org/CVERecord?id=CVE-2022-0291) | 🆕 New |
+| Feb 20 | [CVE-2022-0292](https://www.cve.org/CVERecord?id=CVE-2022-0292) | 🆕 New |
+| Feb 20 | [CVE-2022-0293](https://www.cve.org/CVERecord?id=CVE-2022-0293) | 🆕 New |
+| Feb 20 | [CVE-2022-0294](https://www.cve.org/CVERecord?id=CVE-2022-0294) | 🆕 New |
+| Feb 20 | [CVE-2022-0295](https://www.cve.org/CVERecord?id=CVE-2022-0295) | 🆕 New |
+| Feb 20 | [CVE-2022-0296](https://www.cve.org/CVERecord?id=CVE-2022-0296) | 🆕 New |
+| Feb 20 | [CVE-2022-0297](https://www.cve.org/CVERecord?id=CVE-2022-0297) | 🆕 New |
+| Feb 20 | [CVE-2022-0298](https://www.cve.org/CVERecord?id=CVE-2022-0298) | 🆕 New |
+| Feb 20 | [CVE-2022-0300](https://www.cve.org/CVERecord?id=CVE-2022-0300) | 🆕 New |
+| Feb 20 | [CVE-2022-0301](https://www.cve.org/CVERecord?id=CVE-2022-0301) | 🆕 New |
+| Feb 20 | [CVE-2022-0302](https://www.cve.org/CVERecord?id=CVE-2022-0302) | 🆕 New |
+| Feb 20 | [CVE-2022-0304](https://www.cve.org/CVERecord?id=CVE-2022-0304) | 🆕 New |
+| Feb 20 | [CVE-2022-0305](https://www.cve.org/CVERecord?id=CVE-2022-0305) | 🆕 New |
+| Feb 20 | [CVE-2022-0306](https://www.cve.org/CVERecord?id=CVE-2022-0306) | 🆕 New |
+| Feb 20 | [CVE-2022-0307](https://www.cve.org/CVERecord?id=CVE-2022-0307) | 🆕 New |
+| Feb 20 | [CVE-2022-0308](https://www.cve.org/CVERecord?id=CVE-2022-0308) | 🆕 New |
+| Feb 20 | [CVE-2022-0309](https://www.cve.org/CVERecord?id=CVE-2022-0309) | 🆕 New |
+| Feb 20 | [CVE-2022-0310](https://www.cve.org/CVERecord?id=CVE-2022-0310) | 🆕 New |
+| Feb 20 | [CVE-2022-0311](https://www.cve.org/CVERecord?id=CVE-2022-0311) | 🆕 New |
+| Feb 20 | [CVE-2022-0317](https://www.cve.org/CVERecord?id=CVE-2022-0317) | 🆕 New |
+| ... | | _and 23972 more_ |
