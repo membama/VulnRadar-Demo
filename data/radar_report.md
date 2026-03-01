@@ -1,6 +1,6 @@
 # VulnRadar Report
 
-Generated: `2026-02-28T23:33:26+00:00`
+Generated: `2026-03-01T03:22:11+00:00`
 
 ## Executive Summary
 
@@ -248,12 +248,3 @@ Top critical items:
 | [CVE-2025-21418](https://www.cve.org/CVERecord?id=CVE-2025-21418) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2025-03-04 | 0.084 | 7.8 | ✅ | Windows Ancillary Function Driver for WinSock Elevation of Privilege Vulnerability |
 | [CVE-2023-32409](https://www.cve.org/CVERecord?id=CVE-2023-32409) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2023-06-12 | 0.003 | 8.6 | ✅ | The issue was addressed with improved bounds checks. This issue is fixed in watchOS 9.5, tvOS 16.5, macOS Ventura 13.4, iOS 15.7.8 and iPadOS 15.7.8, Safari 16… |
 | [CVE-2025-21334](https://www.cve.org/CVERecord?id=CVE-2025-21334) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2025-02-04 | 0.076 | 7.8 | ✅ | Windows Hyper-V NT Kernel Integration VSP Elevation of Privilege Vulnerability |
-
-## Recent Changes (Last 7 Days)
-
-| Date | CVE | Status |
-|------|-----|--------|
-| Feb 22 | [CVE-2025-65995](https://www.cve.org/CVERecord?id=CVE-2025-65995) | 🆕 New |
-| Feb 22 | [CVE-2026-26045](https://www.cve.org/CVERecord?id=CVE-2026-26045) | 🆕 New |
-| Feb 22 | [CVE-2026-26046](https://www.cve.org/CVERecord?id=CVE-2026-26046) | 🆕 New |
-| Feb 22 | [CVE-2026-26047](https://www.cve.org/CVERecord?id=CVE-2026-26047) | 🆕 New |
