@@ -1,6 +1,6 @@
 # VulnRadar Report
 
-Generated: `2026-03-09T19:51:01+00:00`
+Generated: `2026-03-09T20:48:54+00:00`
 
 ## Executive Summary
 
@@ -38,9 +38,9 @@ Top critical items:
 
 ## Summary
 
-- Total items: **24211**
+- Total items: **24212**
 - Watchlist hits: **23874**
-- CISA KEVs: **635**
+- CISA KEVs: **637**
 - Exploit Intel (PoC): **715**
 - Exploit Intel + Watchlist (CRITICAL): **378**
 
@@ -193,6 +193,7 @@ Top critical items:
 | [CVE-2022-22587](https://www.cve.org/CVERecord?id=CVE-2022-22587) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2022-02-11 | 0.004 | 9.8 | ✅ | A memory corruption issue was addressed with improved input validation. This issue is fixed in iOS 15.3 and iPadOS 15.3, macOS Big Sur 11.6.3, macOS Monterey 1… |
 | [CVE-2022-3075](https://www.cve.org/CVERecord?id=CVE-2022-3075) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2022-09-29 | 0.021 | 9.6 | ✅ | Insufficient data validation in Mojo in Google Chrome prior to 105.0.5195.102 allowed a remote attacker who had compromised the renderer process to potentially… |
 | [CVE-2024-43461](https://www.cve.org/CVERecord?id=CVE-2024-43461) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2024-10-07 | 0.098 | 8.8 | ✅ | Windows MSHTML Platform Spoofing Vulnerability |
+| [CVE-2026-1603](https://www.cve.org/CVERecord?id=CVE-2026-1603) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2026-03-23 | 0.117 | 8.6 | ✅ | An authentication bypass in Ivanti Endpoint Manager before version 2024 SU5 allows a remote unauthenticated attacker to leak specific stored credential data. |
 | [CVE-2023-6345](https://www.cve.org/CVERecord?id=CVE-2023-6345) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2023-12-21 | 0.013 | 9.6 | ✅ | Integer overflow in Skia in Google Chrome prior to 119.0.6045.199 allowed a remote attacker who had compromised the renderer process to potentially perform a s… |
 | [CVE-2023-32049](https://www.cve.org/CVERecord?id=CVE-2023-32049) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2023-08-01 | 0.091 | 8.8 | ✅ | Windows SmartScreen Security Feature Bypass Vulnerability |
 | [CVE-2024-7971](https://www.cve.org/CVERecord?id=CVE-2024-7971) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2024-09-16 | 0.010 | 9.6 | ✅ | Type confusion in V8 in Google Chrome prior to 128.0.6613.84 allowed a remote attacker to exploit heap corruption via a crafted HTML page. (Chromium security s… |
@@ -247,4 +248,3 @@ Top critical items:
 | [CVE-2026-21509](https://www.cve.org/CVERecord?id=CVE-2026-21509) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2026-02-16 | 0.093 | 7.8 | ✅ | Reliance on untrusted inputs in a security decision in Microsoft Office allows an unauthorized attacker to bypass a security feature locally. |
 | [CVE-2024-21351](https://www.cve.org/CVERecord?id=CVE-2024-21351) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2024-03-05 | 0.108 | 7.6 | ✅ | Windows SmartScreen Security Feature Bypass Vulnerability |
 | [CVE-2022-24521](https://www.cve.org/CVERecord?id=CVE-2022-24521) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2022-05-04 | 0.087 | 7.8 | ✅ | Windows Common Log File System Driver Elevation of Privilege Vulnerability |
-| [CVE-2025-21418](https://www.cve.org/CVERecord?id=CVE-2025-21418) | CRITICAL (Active Exploit in Stack) | CRITICAL | ✅ | ✅ | 2025-03-04 | 0.084 | 7.8 | ✅ | Windows Ancillary Function Driver for WinSock Elevation of Privilege Vulnerability |
